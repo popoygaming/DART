@@ -13,6 +13,7 @@ This repository contains the Python backend API that will expose REST endpoints 
 - Uvicorn
 - SQLAlchemy
 - Alembic
+- pyodbc
 - Pydantic and Pydantic Settings
 - JWT support (python-jose)
 - Password hashing libraries (argon2-cffi and bcrypt)
@@ -58,7 +59,7 @@ Do not commit `.env`.
 Set these values in `.env`:
 
 ```env
-DATABASE_URL=
+DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/DART?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&Encrypt=yes&TrustServerCertificate=yes
 JWT_SECRET=
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
@@ -67,11 +68,9 @@ OCR_SERVICE_URL=
 OCR_SERVICE_TIMEOUT=30
 ```
 
-Example local development database URL (SQLite file):
+For local SQL Server Express development with Windows Authentication, keep `trusted_connection=yes`.
 
-```env
-DATABASE_URL=sqlite:///./dart_api.db
-```
+For local development where the server certificate may not be trusted yet, use `Encrypt=yes` with `TrustServerCertificate=yes` in the connection string, as shown above.
 
 ## Run the API
 
@@ -89,6 +88,8 @@ API base URL is typically `http://127.0.0.1:8000`.
 ## Database and Migrations
 
 Alembic is configured and uses the application settings (`DATABASE_URL`) through `app.core.config`.
+
+Before running migrations later, make sure your `.env` has a valid SQL Server `DATABASE_URL`.
 
 When models are added later, generate a migration with:
 

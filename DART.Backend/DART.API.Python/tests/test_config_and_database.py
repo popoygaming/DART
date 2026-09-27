@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
@@ -62,6 +63,18 @@ def test_database_session_dependency_can_be_created(monkeypatch, tmp_path: Path)
 def test_database_connection_can_initialize_with_test_config(monkeypatch, tmp_path: Path) -> None:
     _configure_test_env(monkeypatch, tmp_path)
     _reset_runtime_state()
+
+    engine = get_engine()
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT 1"))
+        assert result.scalar_one() == 1
+
+
+def test_sql_server_connection_if_configured() -> None:
+    _reset_runtime_state()
+    database_url = get_settings().DATABASE_URL
+    if not database_url.startswith("mssql+pyodbc://"):
+        pytest.skip("SQL Server connectivity test requires DATABASE_URL with mssql+pyodbc.")
 
     engine = get_engine()
     with engine.connect() as connection:

@@ -20,6 +20,8 @@ def _engine_connect_args(database_url: str) -> dict[str, bool]:
 @lru_cache
 def get_engine() -> Engine:
     settings = get_settings()
+    if not settings.DATABASE_URL:
+        raise ValueError("DATABASE_URL is not configured.")
     return create_engine(
         settings.DATABASE_URL,
         pool_pre_ping=True,
@@ -37,8 +39,12 @@ def get_session_factory() -> sessionmaker[Session]:
     )
 
 
+def SessionLocal() -> Session:
+    return get_session_factory()()
+
+
 def get_db() -> Generator[Session, None, None]:
-    db = get_session_factory()()
+    db = SessionLocal()
     try:
         yield db
     finally:
