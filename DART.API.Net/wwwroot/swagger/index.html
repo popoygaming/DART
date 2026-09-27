@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DART API - Swagger UI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+    <style>body { margin:0; padding:0; }</style>
+  </head>
+  <body>
+    <div style="padding:12px; background:#f7f7f7; border-bottom:1px solid #eee;">
+      <label for="specUrl">OpenAPI JSON URL:</label>
+      <input id="specUrl" type="text" style="width:60%" value="/openapi/v1.json" placeholder="/openapi/v1.json" />
+      <button id="loadSpec">Load</button>
+    </div>
+    <div id="swagger-ui"></div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+      (async function () {
+        // Allow developer to pass ?url=... or use the provided input to load an OpenAPI JSON document.
+        const params = new URLSearchParams(window.location.search);
+        const providedUrl = params.get('url');
+        const input = document.getElementById('specUrl');
+
+        function createUI(url) {
+          // initialize Swagger UI
+          SwaggerUIBundle({
+            url: url,
+            dom_id: '#swagger-ui',
+            presets: [SwaggerUIBundle.presets.apis],
+            layout: 'BaseLayout'
+          });
+        }
+
+        const defaultUrl = '/openapi/v1.json';
+        const effectiveUrl = providedUrl || defaultUrl;
+        input.value = effectiveUrl;
+        createUI(effectiveUrl);
+
+        document.getElementById('loadSpec').addEventListener('click', () => {
+          const u = (document.getElementById('specUrl')).value;
+          if (u) createUI(u);
+        });
+      })();
+    </script>
+  </body>
+</html>

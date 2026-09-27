@@ -1,0 +1,8 @@
+@DART.API.Net_HostAddress = https://localhost:5001
+
+### Health check
+GET {{DART.API.Net_HostAddress}}/api/health
+Accept: application/json
+
+
+###
