@@ -11,6 +11,7 @@ public class DartDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Record> Records => Set<Record>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,6 +47,45 @@ public class DartDbContext : DbContext
 
             entity.Property(u => u.UpdatedAt)
                 .IsRequired();
+        });
+
+        modelBuilder.Entity<Record>(entity =>
+        {
+            entity.ToTable("Records", table =>
+                table.HasCheckConstraint("CK_Records_RecordType", "[RecordType] IN ('Birth','Marriage','Death')"));
+
+            entity.HasKey(r => r.Id);
+
+            entity.Property(r => r.RecordType)
+                .HasConversion<string>()
+                .IsRequired()
+                .HasMaxLength(20);
+
+            entity.Property(r => r.RegistryNumber)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(r => r.CreatedBy)
+                .IsRequired();
+
+            entity.Property(r => r.CreatedAt)
+                .IsRequired();
+
+            entity.Property(r => r.UpdatedAt)
+                .IsRequired();
+
+            entity.HasIndex(r => r.RegistryNumber);
+            entity.HasIndex(r => r.Name);
+            entity.HasIndex(r => r.RecordType);
+
+            entity.HasOne(r => r.CreatedByUser)
+                .WithMany(u => u.RecordsCreated)
+                .HasForeignKey(r => r.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
